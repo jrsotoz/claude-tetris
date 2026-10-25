@@ -15,6 +15,17 @@ const COLORS = [
   '#ffb74d', // L - orange
 ];
 
+const COLORS_LIGHT = [
+  null,
+  '#00acc1', // I - cyan
+  '#f9a825', // O - yellow
+  '#8e24aa', // T - purple
+  '#43a047', // S - green
+  '#e53935', // Z - red
+  '#1e88e5', // J - blue
+  '#fb8c00', // L - orange
+];
+
 const PIECES = [
   null,
   [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], // I
@@ -39,6 +50,14 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
+const themeToggle = document.getElementById('theme-toggle');
+const themeLabel = document.getElementById('theme-label');
+const THEME_KEY = 'tetris-theme';
+
+let theme = 'dark';
+let palette = COLORS;
+let gridColor = '#22222e';
+let highlightColor = 'rgba(255,255,255,0.12)';
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
 
@@ -158,18 +177,18 @@ function updateHUD() {
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
+  const color = palette[colorIndex];
   context.globalAlpha = alpha ?? 1;
   context.fillStyle = color;
   context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
   // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
+  context.fillStyle = highlightColor;
   context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
   context.globalAlpha = 1;
 }
 
 function drawGrid() {
-  ctx.strokeStyle = '#22222e';
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 0.5;
   for (let c = 1; c < COLS; c++) {
     ctx.beginPath();
@@ -256,6 +275,19 @@ function loop(ts) {
   animId = requestAnimationFrame(loop);
 }
 
+function applyTheme(newTheme) {
+  theme = newTheme === 'light' ? 'light' : 'dark';
+  const isLight = theme === 'light';
+  document.documentElement.dataset.theme = theme;
+  palette = isLight ? COLORS_LIGHT : COLORS;
+  gridColor = isLight ? '#e3e5ee' : '#22222e';
+  highlightColor = isLight ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)';
+  themeToggle.setAttribute('aria-checked', String(isLight));
+  themeLabel.textContent = isLight ? 'Modo claro' : 'Modo oscuro';
+  // en pausa / game over el rAF está cancelado: redibujar a mano
+  if (current && next) { draw(); drawNext(); }
+}
+
 function init() {
   board = createBoard();
   score = 0;
@@ -275,6 +307,8 @@ function init() {
 }
 
 document.addEventListener('keydown', e => {
+  // con el foco en el toggle, Space/Enter solo lo activan (sin caída fuerte)
+  if (e.target === themeToggle && e.code !== 'KeyP') return;
   if (e.code === 'KeyP') { togglePause(); return; }
   if (paused || gameOver) return;
   switch (e.code) {
@@ -300,5 +334,16 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+
+themeToggle.addEventListener('click', () => {
+  const nextTheme = theme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme);
+  try { localStorage.setItem(THEME_KEY, nextTheme); } catch (_) {}
+  themeToggle.blur();
+});
+
+let savedTheme = null;
+try { savedTheme = localStorage.getItem(THEME_KEY); } catch (_) {}
+applyTheme(savedTheme || 'dark');
 
 init();
