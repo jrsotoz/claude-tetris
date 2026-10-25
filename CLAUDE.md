@@ -22,4 +22,5 @@ Three files: `index.html` (DOM + canvases `#board` 300x600, `#next-canvas` 120x1
 - Rotation: `rotateCW` on matrix + horizontal wall kicks `[0,-1,1,-2,2]` in `tryRotate` (no SRS).
 - Scoring: `LINE_SCORES[cleared] * level`; soft drop +1/cell, hard drop +2/cell; level = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
 - Input: single `keydown` listener (arrows, `X` rotate, `Space` hard drop, `P` pause).
+- Theming: colors are CSS variables in `style.css` (`:root` = dark default, `[data-theme="light"]` override). `applyTheme()` sets `data-theme` on `<html>`, swaps canvas `palette` (`COLORS`/`COLORS_LIGHT`), `gridColor`, `highlightColor`, and redraws (rAF is cancelled while paused/game over). Preference persisted in `localStorage` key `tetris-theme`; default is always dark. The `keydown` handler ignores keys (except `P`) when the theme toggle has focus.
 - Piece selection is pure `Math.random()` (no 7-bag).
