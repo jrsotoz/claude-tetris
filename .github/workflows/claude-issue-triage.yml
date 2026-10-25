@@ -70,4 +70,12 @@ jobs:
                - **Criterios de aceptación**
                - **Riesgos / dudas abiertas**
 
+               Formato del comentario (obligatorio): Markdown válido de GitHub (GFM), siempre.
+               - Cada sección con encabezado `###` y una línea en blanco antes y después.
+               - Listas con `-` o `1.`, checkboxes `- [ ]` para criterios de aceptación.
+               - Código/funciones/rutas entre backticks; bloques de código con ``` y lenguaje (```js).
+               - Refs a código como `game.js:línea` (o enlaces permalink de GitHub).
+               - Sin HTML salvo el marcador `<!-- claude-issue-diagnosis -->` en la primera línea.
+               - Al pasar el body con `gh`, usa saltos de línea reales (heredoc o `--body-file`), nunca `\n` literales, para que el Markdown se renderice igual.
+
             No modifiques código ni abras PRs.
